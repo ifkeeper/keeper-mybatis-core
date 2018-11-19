@@ -95,13 +95,15 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 	}
 
 	@Override
-	public void update(T model, PK id) throws IllegalAccessException, NoSuchFieldException {
-		Field field = modelClass.getDeclaredField("id");
-		field.setAccessible(true);
-		field.set(model, id);
-		mapper.updateByPrimaryKeySelective(model);
-
-
+	public void update(T model, PK id) {
+		try {
+			Field field = modelClass.getDeclaredField("id");
+			field.setAccessible(true);
+			field.set(model, id);
+			mapper.updateByPrimaryKeySelective(model);
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			throw new ServiceException(e);
+		}
 	}
 
 	@Override
