@@ -1,4 +1,4 @@
-package com.mingrn.keeper.core;
+package com.mingrn.itumate.core;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.exceptions.TooManyResultsException;
