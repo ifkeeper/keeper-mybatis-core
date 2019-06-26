@@ -14,6 +14,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 基于通用MyBatis Mapper插件的Service接口的实现
@@ -30,6 +31,7 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 	 */
 	private Class<T> modelClass;
 
+	@SuppressWarnings("unchecked")
 	public AbstractService() {
 		ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
 		modelClass = (Class<T>) parameterizedType.getActualTypeArguments()[0];
@@ -81,12 +83,8 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 
 	@Override
 	public void removeByIdList(List<PK> idList) {
-		int length = idList.size();
-		String[] str = new String[length];
-		for (int i = 0; i < length; i++) {
-			str[i] = "'" + (idList.get(i).toString()) + "'";
-		}
-		mapper.deleteByIds(String.join(",", str));
+		List<String> ids = idList.stream().map(o -> "'" + o + "'").collect(Collectors.toList());
+		mapper.deleteByIds(String.join(",", ids));
 	}
 
 	@Override
@@ -170,8 +168,7 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 			PageHelper.startPage(pageNumber, pageSize);
 		}
 		List<T> list = mapper.selectByCondition(condition);
-		PageInfo<T> pageInfo = new PageInfo<T>(list);
-		return pageInfo;
+		return new PageInfo<>(list);
 	}
 
 
