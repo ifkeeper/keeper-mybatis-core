@@ -3,7 +3,7 @@ package com.mingrn.itumate.core;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
-import com.mingrn.itumate.global.exception.ServiceException;
+import com.mingrn.itumate.exception.ServiceException;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 import tk.mybatis.mapper.entity.Condition;
 
