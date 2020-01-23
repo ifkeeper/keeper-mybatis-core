@@ -5,9 +5,9 @@ import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import com.mingrn.itumate.exception.ServiceException;
 import org.apache.ibatis.exceptions.TooManyResultsException;
+import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Condition;
 
-import javax.annotation.Resource;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -23,18 +23,18 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractService<T, DTO extends T, PK extends Serializable> implements Service<T, DTO, PK> {
 
-	@Resource
+	@Autowired
 	protected Mapper<T> mapper;
 
 	/**
 	 * 当前泛型真实类型的Class
 	 */
-	private Class<T> modelClass;
+	private Class<T> domainClass;
 
 	@SuppressWarnings("unchecked")
 	public AbstractService() {
 		ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
-		modelClass = (Class<T>) parameterizedType.getActualTypeArguments()[0];
+		domainClass = (Class<T>) parameterizedType.getActualTypeArguments()[0];
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 	@Override
 	public void update(T model, PK id) {
 		try {
-			Field field = modelClass.getDeclaredField("id");
+			Field field = domainClass.getDeclaredField("id");
 			field.setAccessible(true);
 			field.set(model, id);
 			mapper.updateByPrimaryKeySelective(model);
@@ -116,8 +116,8 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 	@Override
 	public T findBy(String fieldName, Object value) throws TooManyResultsException {
 		try {
-			T model = modelClass.newInstance();
-			Field field = modelClass.getDeclaredField(fieldName);
+			T model = domainClass.newInstance();
+			Field field = domainClass.getDeclaredField(fieldName);
 			field.setAccessible(true);
 			field.set(model, value);
 			return mapper.selectOne(model);
@@ -138,7 +138,7 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 
 	@Override
 	public int count(String column) {
-		Condition condition = new Condition(modelClass);
+		Condition condition = new Condition(domainClass);
 		condition.setCountProperty(column);
 		return mapper.selectCountByCondition(condition);
 	}
@@ -161,7 +161,7 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 	@Override
 	public PageInfo<T> findByCondition(Condition condition, OrderBy orderBy, int pageSize, int pageNumber) {
 		if (orderBy != null) {
-			condition = condition == null ? (new Condition(modelClass)) : condition;
+			condition = condition == null ? (new Condition(domainClass)) : condition;
 			condition.setOrderByClause(orderBy.toString());
 		}
 		if (pageSize > 0 && pageNumber >= 0) {
@@ -199,7 +199,7 @@ public abstract class AbstractService<T, DTO extends T, PK extends Serializable>
 
 	@Override
 	public List<T> find(OrderBy orderBy) {
-		Condition condition = new Condition(modelClass);
+		Condition condition = new Condition(domainClass);
 		condition.setOrderByClause(orderBy.toString());
 		return mapper.selectByCondition(condition);
 	}
