@@ -174,10 +174,8 @@ public interface Service<T, DTO extends T, PK extends Serializable> {
 	 *
 	 * @param model
 	 * @param id
-	 * @throws IllegalAccessException
-	 * @throws NoSuchFieldException
 	 */
-	void update(T model, PK id) throws IllegalAccessException, NoSuchFieldException;
+	void update(T model, PK id);
 
 	/**
 	 * 根据条件更新
